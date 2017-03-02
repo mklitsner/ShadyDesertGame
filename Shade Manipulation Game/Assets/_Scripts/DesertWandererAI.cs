@@ -17,8 +17,9 @@ public class DesertWandererAI : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		DetectShade ();
-		SetHeat (0.001f);
-		Debug.Log (inshade);
+		SetHeat (0.01f);
+		StateIndicator ();
+
 	}
 
 
@@ -88,6 +89,14 @@ public class DesertWandererAI : MonoBehaviour {
 			}
 		}
 	}
+
+
+	void StateIndicator(){
+		GetComponent<Renderer> ().material.color = new Color (heat, 0, 0);
+		Debug.Log (heat);
+	}
+
+
 	}
 
 
