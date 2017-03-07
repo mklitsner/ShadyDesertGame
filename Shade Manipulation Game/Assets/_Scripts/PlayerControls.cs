@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerControls : MonoBehaviour {
 
-public float sensitivity = 0.1f;
+public float sensitivity = 1f;
 
 
 	float sunXrotation=90;
@@ -17,6 +17,10 @@ public float sensitivity = 0.1f;
 
 	float sunXrotate;
 	float sunYrotate;
+
+	float deacceleration=0.1f;
+
+	int sign=1;
 	//global
 	//0=shade at 12oclock
 	//180= shade at 6oclock
@@ -33,38 +37,82 @@ public float sensitivity = 0.1f;
 
 
 
-		ChangeSunCoordinates ();
+		ChangeSunCoordinatesNatural();
+		ChangeSunPitch ();
 		MoveSun ();
 	}
 
 	void MoveSun(){
 		transform.Rotate (sunXrotate, 0, 0,Space.Self);
 		transform.Rotate (0, sunYrotate, 0,Space.World);
+
 	}
 
 
 
 
-	void ChangeSunCoordinates(){
-		if (Input.GetKey ("up")) {
-			print ("up arrow key is held down");
+	void ChangeSunCoordinatesNatural(){
+		if (sunXrotation > 90) {
+			sign = -1;
+		} else {
+			sign = 1;
+		}
+
+
+		if (Input.GetKey("up")) {
+
+			sunYrotate = -sensitivity * Mathf.Sin ((sunYrotation* Mathf.PI)/180)*sign;
+		} else if (Input.GetKey ("down")) {
+
+			sunYrotate = sensitivity * Mathf.Sin ((sunYrotation* Mathf.PI)/180)*sign;
+		} else if (Input.GetKey("left")) {
+
+			sunYrotate = -sensitivity * Mathf.Cos ((sunYrotation* Mathf.PI)/180)*sign;
+		} else if (Input.GetKey ("right")) {
+			
+			sunYrotate = sensitivity * Mathf.Cos ((sunYrotation* Mathf.PI)/180)*sign;
+		} else {
+			if(sunYrotate>0){
+				sunYrotate = sunYrotate-deacceleration;
+				if (sunYrotate <= 0) {
+					sunYrotate = 0;
+				}
+			}else if (sunYrotate<0){
+				sunYrotate = sunYrotate+deacceleration;
+				if (sunYrotate >= 0) {
+					sunYrotate = 0;
+				}
+			}
+		}
+	}
+
+
+	void ChangeSunPitch(){
+
+		if (Input.GetKey ("q")) {
+
 			if (sunXrotation < maxXrot) {
 				sunXrotate = sensitivity;
 			}
-		} else if (Input.GetKey ("down")) {
-			print ("down arrow key is held down");
+		} else if (Input.GetKey ("a")) {
+
 			if (sunXrotation > minXrot) {
 				sunXrotate = -sensitivity;
 			}
 		} else {
 			sunXrotate = 0;
 		}
+	}
+
+
+
+	void ChangeSunCoordinates(){
 
 		if (Input.GetKey("left")) {
-			print ("left arrow key is held down");
+			
 			sunYrotate = sensitivity;
 		} else if (Input.GetKey ("right")) {
-			print ("right arrow key is held down");
+			
 			sunYrotate = -sensitivity;
 		} else {
 			sunYrotate = 0;
