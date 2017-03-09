@@ -19,3 +19,5 @@
 /Users/mklitsner/Desktop/Game Design/ShadyDesertGame/Shade Manipulation Game/Temp/bin/Debug/Assembly-CSharp.dll
 /Users/mklitsner/Desktop/Game Design/ShadyDesertGame/Shade Manipulation Game/obj/Debug/Assembly-CSharp.dll
 /Users/mklitsner/Desktop/Game Design/ShadyDesertGame/Shade Manipulation Game/obj/Debug/Assembly-CSharp.dll.mdb
+/Users/mklitsner/Desktop/Game Design/ShadyDesertGame/Shade Manipulation Game/Temp/bin/Debug/UnityEngine.Advertisements.dll
+/Users/mklitsner/Desktop/Game Design/ShadyDesertGame/Shade Manipulation Game/Temp/bin/Debug/UnityEngine.Purchasing.dll

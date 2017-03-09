@@ -6,37 +6,59 @@ public class DesertWandererAI : MonoBehaviour {
 	bool inshade;
 	[Range(0, 1)]public float heat;//0-1
 	[Range(0, 1)]public float tiredness;//0-1
-	 public int state =wandering;
-	const int asleep = 1;
-	const int dead =2;
-	const int wandering =3;
-	const int sawSomething =4;
+
+	public GameObject footprint;
+	int footprintSide=1;
+
+	const string asleep = "asleep";
+	const string dead ="dead";
+	const string wandering ="wandering";
+	const string sawSomething ="sawSomething";
+	const string moveTowardSomething ="moveTowardSomething";
+	public string state =wandering;
 
 	float speed=1;
 	float currentspeed;
 
+	float rotationSpeed;
+	float rotationFrequency;
+
+
+
 	public Vector3 sunPosition;
 	// Use this for initialization
 	void Start () {
+		state = wandering;
+		rotationSpeed=1;
+		rotationFrequency=1;
+		SetState (wandering);
+		footprintSide = 1;
 	}
-	
+
+
+
+
+
+
 	// Update is called once per frame
 	void Update () {
 		
 
 		currentspeed = speed - (tiredness * speed);
 
-		if (state == wandering) {
-		}
 
 		DetectShade ();
 
 		if (!inshade) {
-		SearchForShade ();
+			SearchForShade ();
 			if (state == sawSomething) {
 				MoveForward (currentspeed);
-			} else if(state == wandering){
-				MoveRandomly(currentspeed);
+			} else if (state == wandering) {
+				MoveRandomly (currentspeed);
+			}
+		} else {
+			if (state == wandering) {
+				MoveRandomly (currentspeed);
 			}
 		}
 
@@ -52,7 +74,7 @@ public class DesertWandererAI : MonoBehaviour {
 
 
 
-	void SetState(int _state){
+	void SetState(string _state){
 
 		switch (_state) {
 		case asleep:
@@ -65,45 +87,37 @@ public class DesertWandererAI : MonoBehaviour {
 
 		case wandering:
 			//gets up and continues walking
+			StartCoroutine(FootPrintTiming (1));
 			break;
 
 		case sawSomething:
 			//perks up at the shade he saw
-
+			break;
+		case moveTowardSomething:
+			//perks up at the shade he saw
 			break;
 		}
 	}
 
 
-	private void LookAhead(){
-		
 
-		Ray ray = new Ray (transform.position, transform.forward);
-		RaycastHit hit;
-
-		//draw the ray for debugging
-		//Debug.DrawLine(transform.position, transform.position + (transform.forward * obstacleRange), Color.yellow);
-		//Debug.DrawLine (transform.position + (transform.forward + obstacleRange), transform.position + (transform.forward + obstacleRange) + (transform.forward + 0.3f), Color.red);
-
-		if (Physics.SphereCast (ray, 0.75f, out hit)) {
-			GameObject hitObject = hit.transform.gameObject;
-
-		}
-	}
 
 	void MoveForward(float _speed){
 		transform.Translate (0, 0, _speed * Time.deltaTime);
 	}
 
 	void MoveRandomly(float _speed){
+		float newrotationFrequency = (heat + 1) * rotationFrequency;
+		float _angle = Mathf.Cos (Time.time*newrotationFrequency)*rotationSpeed;
 		//float angle = Random.Range (-10, 10);
 		//transform.Rotate (0, angle, 0);
 		transform.Translate (0, 0, _speed * Time.deltaTime);
-		print ("moving");
+		transform.Rotate (0, _angle, 0);
+
 	}
 
 	void SearchForShade(){
-		bool seeShade =transform.GetChild (0).GetComponent<ShadeSearcher> ().inshade;
+		bool seeShade =transform.GetChild (0).GetChild(0).GetComponent<ShadeSearcher> ().inshade;
 
 		if (seeShade) {
 			SetState (sawSomething);
@@ -130,6 +144,25 @@ public class DesertWandererAI : MonoBehaviour {
 	}
 
 
+
+
+
+	private IEnumerator FootPrintTiming(float _duration){
+
+		while (state==wandering)
+		{
+			footprintSide=-1*footprintSide;
+			Vector3 footprintposition = new Vector3 (transform.localPosition.x + 0.05f*footprintSide, transform.localPosition.y,transform.localPosition.z);
+			GameObject footprintclone = (GameObject)Instantiate(footprint,footprintposition,Quaternion.Euler(180+footprintSide*90,transform.localEulerAngles.y,90+90*footprintSide));
+
+			if(footprintSide==-1){
+				
+			}
+			yield return new WaitForSeconds (_duration);
+		}
+
+
+	}
 
 
 
@@ -184,8 +217,10 @@ public class DesertWandererAI : MonoBehaviour {
 
 	void StateIndicator(){
 		GetComponent<Renderer> ().material.color = new Color (heat, 0, 0);
-		Debug.Log (heat);
 	}
+
+
+
 
 
 	}

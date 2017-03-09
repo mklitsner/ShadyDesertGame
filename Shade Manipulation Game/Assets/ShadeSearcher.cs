@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ShadeSearcher : MonoBehaviour {
 	public bool inshade;
+	float Zposition;
 
 	void Start () {
 		
@@ -11,11 +12,13 @@ public class ShadeSearcher : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		ScanForShade();
 		DetectShade();
+
 	}
 
 	void DetectShade(){
-		Vector3 sunPosition = transform.parent.GetComponent<DesertWandererAI>().sunPosition;
+		Vector3 sunPosition = transform.parent.parent.GetComponent<DesertWandererAI>().sunPosition;
 		Ray ray = new Ray(transform.position, (sunPosition-transform.position));
 		RaycastHit hit;
 		//print (sunPosition - transform.position);
@@ -31,5 +34,20 @@ public class ShadeSearcher : MonoBehaviour {
 				GetComponent<MeshRenderer> ().enabled = true;
 			}
 		}
+	}
+
+
+	void ScanForShade(){
+		float maxdistance = 15;
+
+		Zposition= transform.localPosition.y ;
+
+		if (Zposition < maxdistance) {
+			transform.Translate(0,0,1);
+		} else if(Zposition>=maxdistance){
+			transform.Translate(0,0,-maxdistance+10);
+		}
+
+			
 	}
 }
