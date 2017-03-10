@@ -23,6 +23,13 @@ public class DesertWandererAI : MonoBehaviour {
 	float rotationSpeed;
 	float rotationFrequency;
 
+	 float turnangle;
+	float newturnangle;
+	float turnTime;
+
+	public float wanderingtime;
+	float initialwanderingtime;
+
 
 
 	public Vector3 sunPosition;
@@ -33,6 +40,8 @@ public class DesertWandererAI : MonoBehaviour {
 		rotationFrequency=1;
 		SetState (wandering);
 		footprintSide = 1;
+		initialwanderingtime = 5;
+		wanderingtime = initialwanderingtime;
 	}
 
 
@@ -55,6 +64,7 @@ public class DesertWandererAI : MonoBehaviour {
 				MoveForward (currentspeed);
 			} else if (state == wandering) {
 				MoveRandomly (currentspeed);
+
 			}
 		} else {
 			if (state == wandering) {
@@ -88,11 +98,13 @@ public class DesertWandererAI : MonoBehaviour {
 		case wandering:
 			//gets up and continues walking
 			StartCoroutine(FootPrintTiming (1));
+
 			break;
 
 		case sawSomething:
 			//perks up at the shade he saw
 			break;
+
 		case moveTowardSomething:
 			//perks up at the shade he saw
 			break;
@@ -108,13 +120,45 @@ public class DesertWandererAI : MonoBehaviour {
 
 	void MoveRandomly(float _speed){
 		float newrotationFrequency = (heat + 1) * rotationFrequency;
-		float _angle = Mathf.Cos (Time.time*newrotationFrequency)*rotationSpeed;
+		float _angle = Mathf.Cos (Time.time * newrotationFrequency) * rotationSpeed;
 		//float angle = Random.Range (-10, 10);
 		//transform.Rotate (0, angle, 0);
 		transform.Translate (0, 0, _speed * Time.deltaTime);
 		transform.Rotate (0, _angle, 0);
 
+
+		if(wanderingtime>0){
+			WanderingTimer ();
+			turnangle = transform.localEulerAngles.y;
+			turnTime = 0;
+		}else if (wanderingtime <= 0) {
+			turnTime = turnTime + Time.deltaTime * rotationSpeed;
+			//turn a certain amount
+			transform.localRotation = Quaternion.Lerp (Quaternion.Euler (0,turnangle,0), Quaternion.Euler (0, newturnangle, 0), turnTime);
+			if (turnTime >= 1) {
+				ResetWanderingTimer (initialwanderingtime - heat * 10);
+				newturnangle = newturnangle+100;
+			}
+		}
+
 	}
+
+
+	void WanderingTimer(){
+		//wanders in a direction for a certain amount of time, 
+		//if its doesnt see anything or bump into its own foot prints, it turns;
+		wanderingtime=wanderingtime-Time.deltaTime;
+	}
+
+	void ResetWanderingTimer(float _initialTime){
+		if (wanderingtime <= 0) {
+		wanderingtime = _initialTime;
+		}
+
+	}
+
+
+
 
 	void SearchForShade(){
 		bool seeShade =transform.GetChild (0).GetChild(0).GetComponent<ShadeSearcher> ().inshade;
@@ -142,6 +186,9 @@ public class DesertWandererAI : MonoBehaviour {
 			}
 		}
 	}
+
+
+
 
 
 

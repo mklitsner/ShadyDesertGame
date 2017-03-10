@@ -21,14 +21,15 @@ public class LookAroundHeadAI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		string parentState = transform.parent.GetComponent<DesertWandererAI> ().state;
 		
-		if (transform.parent.GetComponent<DesertWandererAI> ().state == "wandering") {
+		if (parentState == "wandering") {
 			lookrotation = transform.eulerAngles.y;
 				HeadLookAroundRandom ();
 //			print ("rotation " + lookrotation);
 		}
 			
-		if (transform.parent.GetComponent<DesertWandererAI> ().state == "sawSomething") {
+		if (parentState == "sawSomething") {
 			
 		}
 	}

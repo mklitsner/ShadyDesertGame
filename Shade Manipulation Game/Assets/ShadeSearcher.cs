@@ -38,7 +38,7 @@ public class ShadeSearcher : MonoBehaviour {
 
 
 	void ScanForShade(){
-		float maxdistance = 15;
+		float maxdistance =15;
 
 		Zposition= transform.localPosition.y ;
 
