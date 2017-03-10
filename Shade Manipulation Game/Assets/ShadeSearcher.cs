@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class ShadeSearcher : MonoBehaviour {
 	public bool inshade;
+	float Yposition;
 	float Zposition;
 
 	void Start () {
-		
+		Zposition = transform.localPosition.z;
 	}
 	
 	// Update is called once per frame
@@ -29,7 +30,10 @@ public class ShadeSearcher : MonoBehaviour {
 			if (hit.transform.gameObject.name == "sunTarget") {
 				inshade = false;
 				GetComponent<MeshRenderer> ().enabled = false;
-			} else {
+			} else if(hit.transform.gameObject.name == "wanderer"||hit.transform.gameObject.name == "head"){
+				inshade = false;
+				GetComponent<MeshRenderer> ().enabled = false;
+			}else{
 				inshade = true;
 				GetComponent<MeshRenderer> ().enabled = true;
 			}
@@ -38,14 +42,17 @@ public class ShadeSearcher : MonoBehaviour {
 
 
 	void ScanForShade(){
-		float maxdistance =15;
+		float maxdistance =30;
 
-		Zposition= transform.localPosition.y ;
+		Yposition= transform.localPosition.y ;
 
-		if (Zposition < maxdistance) {
+		print(Yposition);
+
+
+		if (Yposition < maxdistance) {
 			transform.Translate(0,0,1);
-		} else if(Zposition>=maxdistance){
-			transform.Translate(0,0,-maxdistance+10);
+		} else if(Yposition>=maxdistance){
+			transform.localPosition = new Vector3 (0, 2, Zposition);
 		}
 
 			

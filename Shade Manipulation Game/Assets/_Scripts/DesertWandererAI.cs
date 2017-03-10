@@ -137,10 +137,18 @@ public class DesertWandererAI : MonoBehaviour {
 			transform.localRotation = Quaternion.Lerp (Quaternion.Euler (0,turnangle,0), Quaternion.Euler (0, newturnangle, 0), turnTime);
 			if (turnTime >= 1) {
 				ResetWanderingTimer (initialwanderingtime - heat * 10);
-				newturnangle = newturnangle+100;
+				newturnangle = newturnangle + Random.Range (90, 45) * RandomSign ();
 			}
 		}
 
+	}
+
+	int RandomSign(){
+		if (Random.Range (0, 2) == 0) {
+			return -1;
+		} 
+		return 1;
+		
 	}
 
 
@@ -199,7 +207,7 @@ public class DesertWandererAI : MonoBehaviour {
 		while (state==wandering)
 		{
 			footprintSide=-1*footprintSide;
-			Vector3 footprintposition = new Vector3 (transform.localPosition.x + 0.05f*footprintSide, transform.localPosition.y,transform.localPosition.z);
+			Vector3 footprintposition = new Vector3 (transform.localPosition.x + 0.05f*footprintSide, transform.localPosition.y-0.5f,transform.localPosition.z);
 			GameObject footprintclone = (GameObject)Instantiate(footprint,footprintposition,Quaternion.Euler(180+footprintSide*90,transform.localEulerAngles.y,90+90*footprintSide));
 
 			if(footprintSide==-1){
