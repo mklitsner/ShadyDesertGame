@@ -46,7 +46,6 @@ public class ShadeSearcher : MonoBehaviour {
 
 		Yposition= transform.localPosition.y ;
 
-		print(Yposition);
 
 
 		if (Yposition < maxdistance) {

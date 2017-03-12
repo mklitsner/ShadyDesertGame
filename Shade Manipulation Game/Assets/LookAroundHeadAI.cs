@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class LookAroundHeadAI : MonoBehaviour {
 
-	public float lookrotation;
+	public Quaternion globalLookRotation;
 	float lookangle=45;
 	float newlookangle=45;
 	int lookdirection=1;
 	float lookspeed=1;
 	float turnTime=2;
 	float gazeTime=1;
-	bool pause=false;
 	// Use this for initialization
 	void Start () {
 		lookangle=45;
@@ -22,16 +21,23 @@ public class LookAroundHeadAI : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		string parentState = transform.parent.GetComponent<DesertWandererAI> ().state;
-		
+
+
+
 		if (parentState == "wandering") {
-			lookrotation = transform.eulerAngles.y;
+			globalLookRotation = transform.rotation;
 				HeadLookAroundRandom ();
-//			print ("rotation " + lookrotation);
+			print ("rotation " + globalLookRotation);
+			print ("localrotation " + transform.localEulerAngles.y);
+
 		}
 			
 		if (parentState == "sawSomething") {
-			
+			transform.rotation = globalLookRotation;
 		}
+
+		print ("rotation " + transform.eulerAngles.y);
+		print ("localrotation " + transform.localEulerAngles.y);
 	}
 
 
