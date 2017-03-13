@@ -46,11 +46,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\LookAroundHeadAI.cs" />
-     <Compile Include="Assets\ShadeSearcher.cs" />
-     <Compile Include="Assets\StatusScript.cs" />
+     <Compile Include="Assets\FootprintScript.cs" />
      <Compile Include="Assets\_Scripts\DesertWandererAI.cs" />
+     <Compile Include="Assets\_Scripts\LookAroundHeadAI.cs" />
      <Compile Include="Assets\_Scripts\PlayerControls.cs" />
+     <Compile Include="Assets\_Scripts\ShadeSearcher.cs" />
+     <Compile Include="Assets\_Scripts\ShadowManAI.cs" />
+     <Compile Include="Assets\_Scripts\ShadowManShadeSensor.cs" />
+     <Compile Include="Assets\_Scripts\StatusScript.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

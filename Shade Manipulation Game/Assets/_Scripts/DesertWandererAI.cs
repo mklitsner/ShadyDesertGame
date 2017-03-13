@@ -36,7 +36,7 @@ public class DesertWandererAI : MonoBehaviour {
 	public Vector3 sunPosition;
 	// Use this for initialization
 	void Start () {
-		state = "wandering";
+		state = wandering;
 		rotationSpeed=1;
 		rotationFrequency=1;
 		SetState (wandering);
@@ -61,7 +61,7 @@ public class DesertWandererAI : MonoBehaviour {
 
 		//WHAT HAPPENS IF NOT IN THE SHADE
 		if (!inshade) {
-			if (heat > 0.1) {
+			if (heat > 0.1f) {
 				SearchForShade ();
 			}
 			if (state == sawSomething) {
@@ -78,10 +78,15 @@ public class DesertWandererAI : MonoBehaviour {
 			if (state == wandering) {
 				MoveRandomly (currentspeed);
 			} else if (state == sawSomething) {
-				if(heat>0.5)
-				SetState (resting);
+				if (tiredness>0.5) {
+					SetState (resting);
+				} else {
+					SetState (wandering);
+				}
 			} else if (state == resting) {
-				
+				if (tiredness <= 0) {
+					SetState (wandering);
+				}
 			}
 
 		}
@@ -239,15 +244,12 @@ public class DesertWandererAI : MonoBehaviour {
 
 	private IEnumerator FootPrintTiming(float _duration){
 
-		while (state==wandering)
+		while (state==wandering||state==sawSomething)
 		{
 			footprintSide=-1*footprintSide;
 			Vector3 footprintposition = new Vector3 (transform.localPosition.x + 0.05f*footprintSide, transform.localPosition.y-0.5f,transform.localPosition.z);
 			GameObject footprintclone = (GameObject)Instantiate(footprint,footprintposition,Quaternion.Euler(180+footprintSide*90,transform.localEulerAngles.y,90+90*footprintSide));
 
-			if(footprintSide==-1){
-				
-			}
 			yield return new WaitForSeconds (_duration);
 		}
 
@@ -279,9 +281,10 @@ public class DesertWandererAI : MonoBehaviour {
 		if (state != resting) {
 			if (tiredness >= 1) {
 				tiredness = 1;
-				tiredness = tiredness + _increasetiredness+_increasetiredness*heat;
+				tiredness = tiredness + _increasetiredness + _increasetiredness * heat;
 
 
+			}
 		}
 		if (state == resting) {
 				if (inshade) {

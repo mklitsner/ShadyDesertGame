@@ -18,7 +18,7 @@ public float sensitivity = 1f;
 	float sunXrotate;
 	float sunYrotate;
 
-	float deacceleration=0.1f;
+	public float deacceleration=0.1f;
 
 	int sign=1;
 	//global
