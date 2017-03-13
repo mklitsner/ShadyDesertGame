@@ -10,7 +10,7 @@ public class DesertWandererAI : MonoBehaviour {
 	public GameObject footprint;
 	int footprintSide=1;
 
-	const string asleep = "asleep";
+	const string resting = "resting";
 	const string dead ="dead";
 	const string wandering ="wandering";
 	const string sawSomething ="sawSomething";
@@ -61,7 +61,9 @@ public class DesertWandererAI : MonoBehaviour {
 
 		//WHAT HAPPENS IF NOT IN THE SHADE
 		if (!inshade) {
-			SearchForShade ();
+			if (heat > 0.1) {
+				SearchForShade ();
+			}
 			if (state == sawSomething) {
 				//if shade is seen, move toward it
 				MoveForward(currentspeed);
@@ -75,13 +77,19 @@ public class DesertWandererAI : MonoBehaviour {
 		else {
 			if (state == wandering) {
 				MoveRandomly (currentspeed);
+			} else if (state == sawSomething) {
+				if(heat>0.5)
+				SetState (resting);
+			} else if (state == resting) {
+				
 			}
+
 		}
 
 
 
-		SetHeat (0.0001f,0.02f);
-		SetTiredness (0.0001f, 0.02f);
+		SetHeat (0.0005f,0.001f);
+		SetTiredness (0.0005f, 0.02f);
 		StateIndicator ();
 
 	}
@@ -93,8 +101,9 @@ public class DesertWandererAI : MonoBehaviour {
 	void SetState(string _state){
 
 		switch (_state) {
-		case asleep:
+		case resting:
 			//goes to sleep for a short amount of time
+			state=resting;
 			break;
 
 		case dead:
@@ -267,25 +276,23 @@ public class DesertWandererAI : MonoBehaviour {
 		
 
 	void SetTiredness(float _increasetiredness,float _decreasetiredness){
-		if (heat > 0.7 && state == wandering) {
+		if (state != resting) {
 			if (tiredness >= 1) {
 				tiredness = 1;
-				if (inshade) {
-					SetState (asleep);
-				}
-				} else {
-					tiredness = tiredness + _increasetiredness;
-				}
+				tiredness = tiredness + _increasetiredness+_increasetiredness*heat;
+
 
 		}
-		if (state == asleep) {
+		if (state == resting) {
 				if (inshade) {
+				//if he falls asleep in the shade, he wakes up and goes back to wandering
 					if (tiredness <= 0) {
 						state = wandering;
 					} else {
 						tiredness = tiredness - _decreasetiredness;
 					}
 				} else {
+				//if sleeping in the sun and becomes too hot, he dies
 					if (heat >= 1) {
 						SetState (dead);
 					}
