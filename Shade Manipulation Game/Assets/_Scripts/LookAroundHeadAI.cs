@@ -27,8 +27,8 @@ public class LookAroundHeadAI : MonoBehaviour {
 		if (parentState == "wandering") {
 			globalLookRotation = transform.rotation;
 				HeadLookAroundRandom ();
-			print ("rotation " + globalLookRotation);
-			print ("localrotation " + transform.localEulerAngles.y);
+//			print ("rotation " + globalLookRotation);
+//			print ("localrotation " + transform.localEulerAngles.y);
 
 		}
 			
@@ -36,8 +36,8 @@ public class LookAroundHeadAI : MonoBehaviour {
 			transform.rotation = globalLookRotation;
 		}
 
-		print ("rotation " + transform.eulerAngles.y);
-		print ("localrotation " + transform.localEulerAngles.y);
+//		print ("rotation " + transform.eulerAngles.y);
+//		print ("localrotation " + transform.localEulerAngles.y);
 	}
 
 

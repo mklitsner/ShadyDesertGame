@@ -43,6 +43,7 @@ public class DesertWandererAI : MonoBehaviour {
 		footprintSide = 1;
 		initialwanderingtime = 5;
 		wanderingtime = initialwanderingtime;
+		StartCoroutine (FootPrintTiming (1));
 	}
 
 
@@ -117,7 +118,7 @@ public class DesertWandererAI : MonoBehaviour {
 
 		case wandering:
 			//gets up and continues walking
-			StartCoroutine (FootPrintTiming (1));
+
 			state = wandering;
 			break;
 
@@ -249,7 +250,7 @@ public class DesertWandererAI : MonoBehaviour {
 			footprintSide=-1*footprintSide;
 			Vector3 footprintposition = new Vector3 (transform.localPosition.x + 0.05f*footprintSide, transform.localPosition.y-0.5f,transform.localPosition.z);
 			GameObject footprintclone = (GameObject)Instantiate(footprint,footprintposition,Quaternion.Euler(180+footprintSide*90,transform.localEulerAngles.y,90+90*footprintSide));
-
+			footprintclone.GetComponent<FootprintScript> ().footprintSide = footprintSide;
 			yield return new WaitForSeconds (_duration);
 		}
 

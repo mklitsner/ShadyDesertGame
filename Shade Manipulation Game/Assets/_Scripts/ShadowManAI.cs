@@ -5,7 +5,12 @@ using UnityEngine;
 public class ShadowManAI : MonoBehaviour {
 
 	public Vector3 sunPosition;
-	Vector3 currentDirection;
+	public Vector3 currentDirection;
+	Vector3 wandererDirection;
+	bool hasDirection=false;
+
+
+	bool shadowSensed;
 	public bool inshade;
 
 	string state;
@@ -17,6 +22,8 @@ public class ShadowManAI : MonoBehaviour {
 	const string engulfed= "engulfed";
 
 	float speed;
+
+	float alarm;
 
 	float turnangle;
 	float newturnangle;
@@ -31,7 +38,7 @@ public class ShadowManAI : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		state = searching;
+		SetState (searching);
 		speed = 1;
 		rotationSpeed=1;
 		rotationFrequency=1;
@@ -41,9 +48,10 @@ public class ShadowManAI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+
 		DetectShade ();
 
-		print ("shadowschildren"+transform.childCount);
 		/* if his outer sensor gets touched by a shadow,
 		 * he turns away from it while moving forward  until it is no longer touching that sensor
 		 */
@@ -64,22 +72,114 @@ public class ShadowManAI : MonoBehaviour {
 
 
 
+		
+					//set current direction:
+					//if footprint is found, set current direction to the footprint
+					//if wanderer is in range, set current direction to wanderer
+					//else, if no foot print or wanderer is found for x seconds, goes from tracking to searching
+
+
+					//check if sensors are under shadows
+					bool[] sensors=new bool[4];
+					shadowSensed=false;
+					CheckShadeSensors (sensors,shadowSensed);
+					
+						if (shadowSensed) {
+						
+						SetState (circumvent);
+							}
+
 				if (state == searching) {
-					MoveRandomly (speed);
+			rotationSpeed = 1;
+					MoveRandomly (speed+alarm);
 					//if any children are inshade, go to circumvention
+					
+					//if a footprint is found, go to tracking(in collider script
+
+					
+					//if wanderer is in range, set current direction to wanderer and go to pursuing state
+
+
+
+			if (alarm <= 0) {
+				alarm = 0;
+			} else {
+				alarm=alarm-1.5f;
+			}
 
 				}else if(state == tracking){
-					//move a certain amount,
+
+			speed = 2;
+
+			MoveForward (speed);
+			if (turnTime < 1) {
+				turnTime = turnTime + Time.deltaTime * rotationSpeed;
+				//turn a certain amount
+				transform.localRotation = Quaternion.Lerp (Quaternion.Euler (0, turnangle, 0), Quaternion.Euler (0, currentDirection.y, 0), turnTime);
+			} else if (turnTime >= 1) {
+					
+				WanderingTimer ();
+				turnTime = 1;
+
+			}
+			if (wanderingtime <= 0) {
+				SetState (searching);
+			
+			}
+
+					//move a certain amount, check for foot prints, 
+//					if collide with footprints, changes current direction to footprint direction
+				
+					// if no footprints are seen for x seconds, go to searching
+
 				}else if(state == pursuing){
+					//move toward current direction
 
 				}else if(state == circumvent){
-					//if the sensor being touched is one of the front,
-					//turn as you're moving forward
+			rotationSpeed = 10;
+			speed = 2;
 
-					//if the sensor being touched is one of the back,
-					//turn slightly and move fast for a moment
+			if (sensors [0] || sensors [1]) {
+				//sensed from the back
+				//move forward slightly faster
+				//rotate slightly less
+				rotationSpeed = 5;
+				speed = 5 + alarm;
 
-				}else if(state == evading){
+			} else {
+				rotationSpeed = 20;	
+			}
+				if (sensors [0] || sensors [3]) {
+				//turn away from left
+				transform.Rotate (0, rotationSpeed, 0);
+				print ("rotating to right");
+				} else if (sensors [1] || sensors [2]) {
+					//turn away from right
+				print ("rotating to left");
+				transform.Rotate (0, -rotationSpeed, 0);
+				//rotating;
+				}
+
+			if (!shadowSensed) {
+					SetState (evading);
+				
+				//if there is no current direction to follow, he goes to searching
+
+			}
+
+			if(alarm<10){
+				alarm = alarm + 2f;
+			}
+			MoveForward(speed);
+						
+			}else if(state == evading){
+				MoveForward(speed);
+			if (alarm <= 0) {
+				alarm = 0;
+				SetState (searching);
+			} else {
+				alarm=alarm-1.5f;
+			}
 
 				}
 	}
@@ -87,7 +187,7 @@ public class ShadowManAI : MonoBehaviour {
 
 
 	void SetState(string _state){
-
+		print (_state);
 		switch (_state) {
 		case circumvent:
 			//if he gets close to shadow, he turns until he is no longe moving toward it. this will be detected by four shadow sensors
@@ -102,11 +202,18 @@ public class ShadowManAI : MonoBehaviour {
 
 		case searching:
 			//if wanderer is out of range, and shadowman sees no footsteps, shadowman randomly wanders in search of wanderer's footsteps or the wanderer
-			state=searching;
+			state = searching;
+			hasDirection = false;
+
 			break;
 
 		case tracking:
 			//if wanderer is out of range, shadowman tracks wanderers footsteps.
+			hasDirection = true;
+			wanderingtime=initialwanderingtime;
+			turnTime = 0;
+			turnangle = transform.eulerAngles.y;
+			ResetWanderingTimer(1);
 			state=tracking;
 			break;
 
@@ -122,6 +229,13 @@ public class ShadowManAI : MonoBehaviour {
 
 		}
 	}
+
+
+	void MoveForward(float _speed){
+		transform.Translate (0, 0, _speed * Time.deltaTime);
+	}
+
+
 
 
 	void MoveRandomly(float _speed){
@@ -197,13 +311,42 @@ public class ShadowManAI : MonoBehaviour {
 
 
 
-	void CheckShadeSensors(){
-		bool[] sensors= new bool[4];
+
+
+
+
+	void CheckShadeSensors( bool[]_sensors,  bool _shadowSensed){
 		for(int i=0; i < transform.childCount;i++){
 			if (transform.GetChild (i).transform.GetComponent<ShadowManShadeSensor> ().inshade) {
-				sensors [i] = true;
+				_sensors [i] = true;
+				print (transform.GetChild (i).transform.name);
+				shadowSensed = true;
+			} else {
+				_sensors [i] = false;
 			}
-				
 	}
 }
+
+
+
+	void OnTriggerEnter(Collider col){
+		
+		if (col.transform.tag =="footprint"){
+			print ("found footprint");
+			StateIndicator ();
+			SetState (tracking);
+			if (col.transform.GetComponent<FootprintScript> ().footprintSide == 1) {
+				currentDirection = new Vector3 (0, col.transform.eulerAngles.y-180, 0);
+			} else {
+				currentDirection = new Vector3 (0, col.transform.eulerAngles.y, 0);
+			}
+		}
+	}
+
+	void StateIndicator(){
+		GetComponent<Renderer> ().material.color = new Color (1, 0, 0);
+	}
+
+
+
 }
