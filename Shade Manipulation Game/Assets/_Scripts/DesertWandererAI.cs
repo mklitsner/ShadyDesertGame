@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,7 +31,10 @@ public class DesertWandererAI : MonoBehaviour {
 	public float wanderingtime;
 	float initialwanderingtime;
 
+	public bool obstacle;
+	int turningSide;
 
+	float maxDistance;
 
 	public Vector3 sunPosition;
 	// Use this for initialization
@@ -44,6 +47,9 @@ public class DesertWandererAI : MonoBehaviour {
 		initialwanderingtime = 5;
 		wanderingtime = initialwanderingtime;
 		StartCoroutine (FootPrintTiming (1));
+		maxDistance = 10;
+
+		speed = 2;
 	}
 
 
@@ -54,11 +60,17 @@ public class DesertWandererAI : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		currentspeed = speed - (tiredness * speed);
+		currentspeed = speed - (tiredness * 0.5f*speed);
 
 
-		DetectShade ();
+		DetectShade();
+		LookAhead();
 
+		if (obstacle) {
+			transform.Rotate(0,turningSide*5,0);	
+		} else {
+		turningSide=RandomSign ();
+		}
 
 		//WHAT HAPPENS IF NOT IN THE SHADE
 		if (!inshade) {
@@ -67,8 +79,12 @@ public class DesertWandererAI : MonoBehaviour {
 			}
 			if (state == sawSomething) {
 				//if shade is seen, move toward it
+				WanderingTimer();
 				MoveForward(currentspeed);
 				TurnToHead ();
+				if (wanderingtime <= 0) {
+					SetState (wandering);
+				}
 			} else if (state == wandering) {
 				MoveRandomly (currentspeed);
 			}
@@ -79,7 +95,7 @@ public class DesertWandererAI : MonoBehaviour {
 			if (state == wandering) {
 				MoveRandomly (currentspeed);
 			} else if (state == sawSomething) {
-				if (tiredness>0.5) {
+				if (tiredness>0.1) {
 					SetState (resting);
 				} else {
 					SetState (wandering);
@@ -118,12 +134,13 @@ public class DesertWandererAI : MonoBehaviour {
 
 		case wandering:
 			//gets up and continues walking
-
+			StartCoroutine (FootPrintTiming (1));
 			state = wandering;
 			break;
 
 		case sawSomething:
 			//perks up at the shade he saw
+			wanderingtime=5;
 			turnangle = transform.rotation.y;
 			turnTime = 0;
 			state = sawSomething;
@@ -176,7 +193,7 @@ public class DesertWandererAI : MonoBehaviour {
 			transform.localRotation = Quaternion.Lerp (Quaternion.Euler (0,turnangle,0), Quaternion.Euler (0, newturnangle, 0), turnTime);
 			if (turnTime >= 1) {
 				ResetWanderingTimer (initialwanderingtime - heat*0.5f*initialwanderingtime);
-				newturnangle = newturnangle + Random.Range (90, 45) * RandomSign ();
+				newturnangle = newturnangle + Random.Range (100, 45) * RandomSign ();
 			}
 		}
 
@@ -282,8 +299,9 @@ public class DesertWandererAI : MonoBehaviour {
 		if (state != resting) {
 			if (tiredness >= 1) {
 				tiredness = 1;
-				tiredness = tiredness + _increasetiredness + _increasetiredness * heat;
 
+			} else {
+				tiredness = tiredness + _increasetiredness + _increasetiredness * heat;
 
 			}
 		}
@@ -310,6 +328,21 @@ public class DesertWandererAI : MonoBehaviour {
 	void StateIndicator(){
 		GetComponent<Renderer> ().material.color = new Color (heat, 0, 0);
 	}
+
+
+	void LookAhead(){
+		Ray ray = new Ray (transform.position, transform.forward);
+		RaycastHit hit;
+
+
+
+		if (Physics.SphereCast (ray, 0.75f, out hit, maxDistance)) {
+			obstacle = true;
+		} else {
+			obstacle = false;
+		}
+	}
+
 
 
 

@@ -6,6 +6,7 @@ public class ShadeSearcher : MonoBehaviour {
 	public bool inshade;
 	float Yposition;
 	float Zposition;
+	public bool testing=true;
 
 	void Start () {
 		Zposition = transform.localPosition.z;
@@ -30,12 +31,14 @@ public class ShadeSearcher : MonoBehaviour {
 			if (hit.transform.gameObject.name == "sunTarget") {
 				inshade = false;
 				GetComponent<MeshRenderer> ().enabled = false;
-			} else if(hit.transform.gameObject.name == "wanderer"||hit.transform.gameObject.name == "head"){
+			} else if(hit.transform.gameObject.name == "wanderer"||hit.transform.gameObject.name == "head"||hit.transform.gameObject.tag == "shadowman"){
 				inshade = false;
 				GetComponent<MeshRenderer> ().enabled = false;
 			}else{
 				inshade = true;
-				GetComponent<MeshRenderer> ().enabled = true;
+				if (testing) {
+					GetComponent<MeshRenderer> ().enabled = true;
+				}
 			}
 		}
 	}
@@ -56,4 +59,6 @@ public class ShadeSearcher : MonoBehaviour {
 
 			
 	}
+
+
 }

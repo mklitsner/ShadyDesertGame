@@ -6,9 +6,9 @@ public class ShadowManAI : MonoBehaviour {
 
 	public Vector3 sunPosition;
 	public Vector3 currentDirection;
-	Vector3 wandererDirection;
+	GameObject wanderer;
 	bool hasDirection=false;
-
+	bool SensorInClosePosition;
 
 	bool shadowSensed;
 	public bool inshade;
@@ -20,6 +20,7 @@ public class ShadowManAI : MonoBehaviour {
 	const string tracking= "tracking";
 	const string pursuing= "pursuing";
 	const string engulfed= "engulfed";
+	const string captured = "captured";
 
 	float speed;
 
@@ -45,11 +46,10 @@ public class ShadowManAI : MonoBehaviour {
 		initialwanderingtime = 5;
 		wanderingtime = initialwanderingtime;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-
-
+		wanderer=GameObject.Find ("wanderer");
 		DetectShade ();
 
 		/* if his outer sensor gets touched by a shadow,
@@ -77,37 +77,57 @@ public class ShadowManAI : MonoBehaviour {
 					//if footprint is found, set current direction to the footprint
 					//if wanderer is in range, set current direction to wanderer
 					//else, if no foot print or wanderer is found for x seconds, goes from tracking to searching
+					float wandererDistance =Vector3.Distance(wanderer.transform.position, transform.position);
 
+
+		if(inshade){
+			SetState (engulfed);
+		}
+			
+
+		if (wandererDistance < 5) {
+			currentDirection = Quaternion.LookRotation (wanderer.transform.position - transform.position).eulerAngles;
+			SetState (pursuing);
+		} else if (wandererDistance < 2) {
+			SetState (captured);
+		} else {
+			if (Random.Range (0, wandererDistance) < 50) {
+				hasDirection = true;
+				currentDirection = Quaternion.LookRotation (wanderer.transform.position - transform.position).eulerAngles;
+			} else {
+				hasDirection = false;
+			}
+		}
 
 					//check if sensors are under shadows
 					bool[] sensors=new bool[4];
 					shadowSensed=false;
 					CheckShadeSensors (sensors,shadowSensed);
 					
-						if (shadowSensed) {
+		if (shadowSensed&& state !=engulfed) {
 						
 						SetState (circumvent);
 							}
 
-				if (state == searching) {
+		if (state == searching) {
 			rotationSpeed = 1;
-					MoveRandomly (speed+alarm);
-					//if any children are inshade, go to circumvention
+			MoveRandomly (speed + alarm);
+			//if any children are inshade, go to circumvention
 					
-					//if a footprint is found, go to tracking(in collider script
+			//if a footprint is found, go to tracking(in collider script
 
 					
-					//if wanderer is in range, set current direction to wanderer and go to pursuing state
+			//if wanderer is in range, set current direction to wanderer and go to pursuing state
 
 
 
 			if (alarm <= 0) {
 				alarm = 0;
 			} else {
-				alarm=alarm-1.5f;
+				alarm = alarm - 2f;
 			}
 
-				}else if(state == tracking){
+		} else if (state == tracking) {
 
 			speed = 2;
 
@@ -127,15 +147,31 @@ public class ShadowManAI : MonoBehaviour {
 			
 			}
 
-					//move a certain amount, check for foot prints, 
+			//move a certain amount, check for foot prints, 
 //					if collide with footprints, changes current direction to footprint direction
 				
-					// if no footprints are seen for x seconds, go to searching
+			// if no footprints are seen for x seconds, go to searching
 
-				}else if(state == pursuing){
-					//move toward current direction
+		} else if (state == pursuing) {
+			
+			MoveForward (speed);
+			if (turnTime < 1) {
+				turnTime = turnTime + Time.deltaTime * rotationSpeed;
+				//turn a certain amount
+				transform.localRotation = Quaternion.Lerp (Quaternion.Euler (0, turnangle, 0), Quaternion.Euler (0, currentDirection.y, 0), turnTime);
+			} else if (turnTime >= 1) {
 
-				}else if(state == circumvent){
+				WanderingTimer ();
+				turnTime = 1;
+
+			}
+			if (wanderingtime <= 0) {
+				SetState (searching);
+
+			}
+			//move toward current direction
+
+		} else if (state == circumvent) {
 			rotationSpeed = 10;
 			speed = 2;
 
@@ -149,58 +185,74 @@ public class ShadowManAI : MonoBehaviour {
 			} else {
 				rotationSpeed = 20;	
 			}
-				if (sensors [0] || sensors [3]) {
+			if (sensors [0] || sensors [3]) {
 				//turn away from left
 				transform.Rotate (0, rotationSpeed, 0);
 				print ("rotating to right");
-				} else if (sensors [1] || sensors [2]) {
-					//turn away from right
+			} else if (sensors [1] || sensors [2]) {
+				//turn away from right
 				print ("rotating to left");
 				transform.Rotate (0, -rotationSpeed, 0);
 				//rotating;
-				}
+			}
 
 			if (!shadowSensed) {
-					SetState (evading);
-				
-				//if there is no current direction to follow, he goes to searching
+				SetState (evading);
 
 			}
 
-			if(alarm<10){
-				alarm = alarm + 2f;
+			if (alarm < 10) {
+				if (SensorInClosePosition) {
+					alarm = alarm + 3f;
+				} else {
+					alarm = alarm + 2.2f;
+				}
 			}
-			MoveForward(speed);
-						
-			}else if(state == evading){
-				MoveForward(speed);
+			MoveForward (speed);
+
+
+
+
+
+		} else if (state == evading) {
+			MoveForward (speed);
 			if (alarm <= 0) {
 				alarm = 0;
 				SetState (searching);
 			} else {
-				alarm=alarm-1.5f;
+				alarm = alarm - 1.5f;
 			}
 
-				}
+		} else if (state == engulfed) {
+			transform.GetComponent<MeshRenderer> ().shadowCastingMode= UnityEngine.Rendering.ShadowCastingMode.On;
+
+			if (!inshade) {
+				transform.GetComponent<MeshRenderer> ().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+				SetState (searching);
+			}
+		}
 	}
 
 
 
 	void SetState(string _state){
-		print (_state);
+		print (_state + " shadowman");
 		switch (_state) {
 		case circumvent:
+			StateIndicator (new Color(0.5f,0,1));
 			//if he gets close to shadow, he turns until he is no longe moving toward it. this will be detected by four shadow sensors
 			state=circumvent;
 			break;
 
 		case evading:
+			StateIndicator (new Color(0,0,1));
 			//if he feels like a shadow is moving too close to him or toward him, he tries to run away from it.
 			//this will be detected by four close sensors
 			state=evading;
 			break;
 
 		case searching:
+			StateIndicator (new Color(0,0,0));
 			//if wanderer is out of range, and shadowman sees no footsteps, shadowman randomly wanders in search of wanderer's footsteps or the wanderer
 			state = searching;
 			hasDirection = false;
@@ -208,23 +260,36 @@ public class ShadowManAI : MonoBehaviour {
 			break;
 
 		case tracking:
+			
 			//if wanderer is out of range, shadowman tracks wanderers footsteps.
 			hasDirection = true;
 			wanderingtime=initialwanderingtime;
 			turnTime = 0;
 			turnangle = transform.eulerAngles.y;
-			ResetWanderingTimer(1);
+			ResetWanderingTimer(0.3f);
 			state=tracking;
 			break;
 
 		case pursuing:
 			//shadowman sees wanderer and pursues him (float pursuit range, pursuit speed)
+			StateIndicator (new Color(1,0.5f,0));
+			hasDirection = true;
+			wanderingtime=initialwanderingtime;
+			turnTime = 0;
+			turnangle = transform.eulerAngles.y;
+			ResetWanderingTimer(1);
 			state=pursuing;
 			break;
 
 		case engulfed:
 			//shadowman is swallowed by a shadow
 			state=engulfed;
+			break;
+
+		case captured:
+			//shadowman is swallowed by a shadow
+			Destroy (gameObject);
+			state=captured;
 			break;
 
 		}
@@ -257,7 +322,11 @@ public class ShadowManAI : MonoBehaviour {
 			transform.localRotation = Quaternion.Lerp (Quaternion.Euler (0,turnangle,0), Quaternion.Euler (0, newturnangle, 0), turnTime);
 			if (turnTime >= 1) {
 				ResetWanderingTimer (initialwanderingtime - 0.5f*initialwanderingtime);
-				newturnangle = newturnangle + Random.Range (90, 45) * RandomSign ();
+				if (hasDirection) {
+					newturnangle = currentDirection.y;
+				} else {
+					newturnangle = newturnangle + Random.Range (90, 45) * RandomSign ();
+				}
 			}
 		}
 
@@ -300,11 +369,12 @@ public class ShadowManAI : MonoBehaviour {
 
 		if (Physics.SphereCast (bottomRay, 0.1f, out bottomHit)&&Physics.SphereCast (topRay, 0.1f, out topHit)) 
 		{
-			if (topHit.transform.gameObject.name == "sunTarget"&& bottomHit.transform.gameObject.name == "sunTarget") {
+			if (topHit.transform.gameObject.name == "sunTarget"|| bottomHit.transform.gameObject.name == "sunTarget") {
 				inshade = false;
-			} else {
+			} else{
 				inshade = true;
 			}
+
 		}
 	}
 
@@ -317,11 +387,12 @@ public class ShadowManAI : MonoBehaviour {
 
 	void CheckShadeSensors( bool[]_sensors,  bool _shadowSensed){
 		for(int i=0; i < transform.childCount;i++){
+			SensorInClosePosition=transform.GetChild (i).transform.GetComponent<ShadowManShadeSensor> ().inClosePosition;
 			if (transform.GetChild (i).transform.GetComponent<ShadowManShadeSensor> ().inshade) {
 				_sensors [i] = true;
 				print (transform.GetChild (i).transform.name);
 				shadowSensed = true;
-			} else {
+			} else { 
 				_sensors [i] = false;
 			}
 	}
@@ -333,7 +404,7 @@ public class ShadowManAI : MonoBehaviour {
 		
 		if (col.transform.tag =="footprint"){
 			print ("found footprint");
-			StateIndicator ();
+			StateIndicator (new Color(1,0,0));
 			SetState (tracking);
 			if (col.transform.GetComponent<FootprintScript> ().footprintSide == 1) {
 				currentDirection = new Vector3 (0, col.transform.eulerAngles.y-180, 0);
@@ -343,8 +414,8 @@ public class ShadowManAI : MonoBehaviour {
 		}
 	}
 
-	void StateIndicator(){
-		GetComponent<Renderer> ().material.color = new Color (1, 0, 0);
+	void StateIndicator(Color _color){
+		GetComponent<Renderer> ().material.color = _color;
 	}
 
 

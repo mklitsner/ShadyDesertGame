@@ -5,15 +5,26 @@ using UnityEngine;
 public class ShadowManShadeSensor : MonoBehaviour {
 	public bool inshade;
 	public Vector3 sunPosition;
+	public bool inClosePosition;
+	public bool testing=true;
+
 	// Use this for initialization
 	void Start () {
-		
+		transform.localPosition = new Vector3 (transform.localPosition.x * 0.5f, transform.localPosition.y, transform.localPosition.z * 0.5f);
+		inClosePosition = true;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		DetectShade ();
 
+	// Update is called once per frame
+	void LateUpdate () {
+
+		if (!inClosePosition) {
+			transform.localPosition = new Vector3 (transform.localPosition.x * 2, transform.localPosition.y, transform.localPosition.z * 2);
+			inClosePosition = true;
+		} else {
+			transform.localPosition = new Vector3 (transform.localPosition.x * 0.5f, transform.localPosition.y, transform.localPosition.z * 0.5f);
+			inClosePosition = false;
+		}
+		DetectShade ();
 
 	}
 
@@ -28,13 +39,17 @@ public class ShadowManShadeSensor : MonoBehaviour {
 		{
 			if (hit.transform.gameObject.name == "sunTarget") {
 				inshade = false;
-				GetComponent<MeshRenderer> ().enabled = false;
-			} else if(hit.transform.gameObject.name == "shadowman"){
+
+					GetComponent<MeshRenderer> ().enabled = false;
+				
+			} else if(hit.transform.gameObject.name == "shadowman"||hit.transform.gameObject.name == "wanderer"){
 				inshade = false;
 				GetComponent<MeshRenderer> ().enabled = false;
 			}else{
 				inshade = true;
-				GetComponent<MeshRenderer> ().enabled = true;
+				if (testing) {
+					GetComponent<MeshRenderer> ().enabled = true;
+				}
 			}
 		}
 	}

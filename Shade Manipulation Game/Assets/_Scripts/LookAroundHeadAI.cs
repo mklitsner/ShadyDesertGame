@@ -11,6 +11,10 @@ public class LookAroundHeadAI : MonoBehaviour {
 	float lookspeed=1;
 	float turnTime=2;
 	float gazeTime=1;
+
+
+	public float maxDistance = 10;
+
 	// Use this for initialization
 	void Start () {
 		lookangle=45;
@@ -34,6 +38,7 @@ public class LookAroundHeadAI : MonoBehaviour {
 			
 		if (parentState == "sawSomething") {
 			transform.rotation = globalLookRotation;
+
 		}
 
 //		print ("rotation " + transform.eulerAngles.y);
@@ -66,6 +71,8 @@ public class LookAroundHeadAI : MonoBehaviour {
 			
 
 	}
+
+
 
 
 
