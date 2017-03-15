@@ -47,7 +47,7 @@ public class DesertWandererAI : MonoBehaviour {
 		initialwanderingtime = 5;
 		wanderingtime = initialwanderingtime;
 		StartCoroutine (FootPrintTiming (1));
-		maxDistance = 10;
+		maxDistance = 5;
 
 		speed = 2;
 	}

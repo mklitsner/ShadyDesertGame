@@ -6,9 +6,16 @@ public class ShadowManAI : MonoBehaviour {
 
 	public Vector3 sunPosition;
 	public Vector3 currentDirection;
+
+	public float topShadow;
+	public float baseShadow;
+
+
 	GameObject wanderer;
 	bool hasDirection=false;
 	bool SensorInClosePosition;
+
+
 
 	bool shadowSensed;
 	public bool inshade;
@@ -201,7 +208,7 @@ public class ShadowManAI : MonoBehaviour {
 
 			}
 
-			if (alarm < 10) {
+			if (alarm < 5) {
 				if (SensorInClosePosition) {
 					alarm = alarm + 3f;
 				} else {
@@ -355,8 +362,8 @@ public class ShadowManAI : MonoBehaviour {
 	}
 
 	void DetectShade(){
-		Vector3 topPos= new Vector3(0,0.5f,0);
-		Vector3 bottomPos = new Vector3(0,-0.5f,0);
+		Vector3 topPos= new Vector3(0,topShadow,0);
+		Vector3 bottomPos = new Vector3(0,baseShadow,0);
 
 		sunPosition = GameObject.Find ("sunTarget").transform.position;
 		Ray bottomRay = new Ray(transform.position+bottomPos, (sunPosition-transform.position));
