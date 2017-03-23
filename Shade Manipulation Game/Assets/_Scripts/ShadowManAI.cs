@@ -28,6 +28,7 @@ public class ShadowManAI : MonoBehaviour {
 	const string pursuing= "pursuing";
 	const string engulfed= "engulfed";
 	const string captured = "captured";
+	const string dormant = "dormant";
 
 	float speed;
 
@@ -46,7 +47,7 @@ public class ShadowManAI : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		SetState (searching);
+		SetState (dormant);
 		speed = 1;
 		rotationSpeed=1;
 		rotationFrequency=1;
@@ -85,20 +86,23 @@ public class ShadowManAI : MonoBehaviour {
 					//if wanderer is in range, set current direction to wanderer
 					//else, if no foot print or wanderer is found for x seconds, goes from tracking to searching
 					float wandererDistance =Vector3.Distance(wanderer.transform.position, transform.position);
+		if (state != dormant) {
 
-
-		if(inshade){
-			SetState (engulfed);
+			if (inshade) {
+				SetState (engulfed);
+			}
 		}
+		if (!inshade) {
+			transform.GetComponent<MeshRenderer> ().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+		}
+
 			
 
 		if (wandererDistance < 5) {
 			currentDirection = Quaternion.LookRotation (wanderer.transform.position - transform.position).eulerAngles;
 			SetState (pursuing);
-		} else if (wandererDistance < 2) {
-			SetState (captured);
 		} else {
-			if (Random.Range (0, wandererDistance) < 50) {
+			if (RandomSign()==1) {
 				hasDirection = true;
 				currentDirection = Quaternion.LookRotation (wanderer.transform.position - transform.position).eulerAngles;
 			} else {
@@ -106,12 +110,17 @@ public class ShadowManAI : MonoBehaviour {
 			}
 		}
 
+		if (wandererDistance < 2) {
+			//SetState (captured);
+
+		}
+
 					//check if sensors are under shadows
 					bool[] sensors=new bool[4];
 					shadowSensed=false;
 					CheckShadeSensors (sensors,shadowSensed);
 					
-		if (shadowSensed&& state !=engulfed) {
+		if (shadowSensed&& state !=engulfed && state !=dormant) {
 						
 						SetState (circumvent);
 							}
@@ -204,7 +213,7 @@ public class ShadowManAI : MonoBehaviour {
 			}
 
 			if (!shadowSensed) {
-				SetState (evading);
+				SetState (searching);
 
 			}
 
@@ -221,20 +230,16 @@ public class ShadowManAI : MonoBehaviour {
 
 
 
-		} else if (state == evading) {
-			MoveForward (speed);
-			if (alarm <= 0) {
-				alarm = 0;
-				SetState (searching);
-			} else {
-				alarm = alarm - 1.5f;
-			}
-
 		} else if (state == engulfed) {
-			transform.GetComponent<MeshRenderer> ().shadowCastingMode= UnityEngine.Rendering.ShadowCastingMode.On;
+			transform.GetComponent<MeshRenderer> ().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 
 			if (!inshade) {
-				transform.GetComponent<MeshRenderer> ().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+				
+				SetState (searching);
+			}
+		} else if (state == dormant) {
+			
+			if(wandererDistance<30){
 				SetState (searching);
 			}
 		}
@@ -294,12 +299,18 @@ public class ShadowManAI : MonoBehaviour {
 			break;
 
 		case captured:
-			//shadowman is swallowed by a shadow
-			Destroy (gameObject);
+			//shadowman has captured
 			state=captured;
+			break;
+		case dormant:
+			//shadowman is standing still
+			state=dormant;
 			break;
 
 		}
+
+
+	
 	}
 
 
@@ -374,10 +385,13 @@ public class ShadowManAI : MonoBehaviour {
 		Debug.DrawRay (transform.position+bottomPos, (sunPosition - transform.position));
 		Debug.DrawRay (transform.position+topPos, (sunPosition - transform.position));
 
-		if (Physics.SphereCast (bottomRay, 0.1f, out bottomHit)&&Physics.SphereCast (topRay, 0.1f, out topHit)) 
+		if (Physics.Raycast (bottomRay, out bottomHit)&&Physics.Raycast (topRay, out topHit)) 
 		{
-			if (topHit.transform.gameObject.name == "sunTarget"|| bottomHit.transform.gameObject.name == "sunTarget") {
+			if (topHit.transform.gameObject.name == "sunTarget" || bottomHit.transform.gameObject.name == "sunTarget") {
 				inshade = false;
+//			}
+//			else if(topHit.transform.gameObject.tag == "shadowman" || bottomHit.transform.gameObject.tag == "shadowman"){
+//				inshade = false;
 			} else{
 				inshade = true;
 			}

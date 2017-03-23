@@ -36,9 +36,13 @@ public class DesertWandererAI : MonoBehaviour {
 
 	float maxDistance;
 
+	bool footprints;
+
 	public Vector3 sunPosition;
 	// Use this for initialization
 	void Start () {
+		StartCoroutine (FootPrintTiming (1));
+		footprints = true;
 		state = wandering;
 		rotationSpeed=1;
 		rotationFrequency=1;
@@ -46,7 +50,7 @@ public class DesertWandererAI : MonoBehaviour {
 		footprintSide = 1;
 		initialwanderingtime = 5;
 		wanderingtime = initialwanderingtime;
-		StartCoroutine (FootPrintTiming (1));
+		//StartCoroutine (FootPrintTiming (1));
 		maxDistance = 5;
 
 		speed = 2;
@@ -57,10 +61,15 @@ public class DesertWandererAI : MonoBehaviour {
 
 
 
+
 	// Update is called once per frame
 	void Update () {
-		
-		currentspeed = speed - (tiredness * 0.5f*speed);
+	
+		if (tiredness > 0.5) {
+			currentspeed = speed / 2;
+		} else {
+			currentspeed = speed;
+		}
 
 
 		DetectShade();
@@ -86,14 +95,18 @@ public class DesertWandererAI : MonoBehaviour {
 					SetState (wandering);
 				}
 			} else if (state == wandering) {
-				MoveRandomly (currentspeed);
+				if (!obstacle) {
+					MoveRandomly (currentspeed);
+				}
 			}
 		} 
 
 		//WHAT HAPPENS IF IN THE SHADE
 		else {
 			if (state == wandering) {
-				MoveRandomly (currentspeed);
+				if (!obstacle) {
+					MoveRandomly (currentspeed);
+				}
 			} else if (state == sawSomething) {
 				if (tiredness>0.1) {
 					SetState (resting);
@@ -134,7 +147,6 @@ public class DesertWandererAI : MonoBehaviour {
 
 		case wandering:
 			//gets up and continues walking
-			StartCoroutine (FootPrintTiming (1));
 			state = wandering;
 			break;
 
@@ -262,15 +274,15 @@ public class DesertWandererAI : MonoBehaviour {
 
 	private IEnumerator FootPrintTiming(float _duration){
 
-		while (state==wandering||state==sawSomething)
+
+		while (state!=dead)
 		{
 			footprintSide=-1*footprintSide;
 			Vector3 footprintposition = new Vector3 (transform.localPosition.x + 0.05f*footprintSide, transform.localPosition.y-0.5f,transform.localPosition.z);
 			GameObject footprintclone = (GameObject)Instantiate(footprint,footprintposition,Quaternion.Euler(180+footprintSide*90,transform.localEulerAngles.y,90+90*footprintSide));
 			footprintclone.GetComponent<FootprintScript> ().footprintSide = footprintSide;
-			yield return new WaitForSeconds (_duration);
+			yield return new WaitForSeconds (_duration/(tiredness+1));
 		}
-
 
 	}
 

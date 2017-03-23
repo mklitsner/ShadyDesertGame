@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{8FCBFA83-D3F6-7B34-DB7C-C083C87C20E4}") = "Shade Manipulation Game", "Assembly-CSharp.csproj", "{902BFBFF-1B11-297A-11F7-0487CABAC74D}"
 EndProject
+Project("{8FCBFA83-D3F6-7B34-DB7C-C083C87C20E4}") = "Shade Manipulation Game", "Assembly-CSharp-Editor.csproj", "{06D395BF-9162-369A-58D2-2B53F0C37481}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{902BFBFF-1B11-297A-11F7-0487CABAC74D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{902BFBFF-1B11-297A-11F7-0487CABAC74D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{902BFBFF-1B11-297A-11F7-0487CABAC74D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06D395BF-9162-369A-58D2-2B53F0C37481}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06D395BF-9162-369A-58D2-2B53F0C37481}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06D395BF-9162-369A-58D2-2B53F0C37481}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06D395BF-9162-369A-58D2-2B53F0C37481}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -42,7 +42,7 @@ public class ShadowManShadeSensor : MonoBehaviour {
 
 					GetComponent<MeshRenderer> ().enabled = false;
 				
-			} else if(hit.transform.gameObject.name == "shadowman"||hit.transform.gameObject.name == "wanderer"){
+			} else if(hit.transform.gameObject.tag == "shadowman"||hit.transform.gameObject.name == "wanderer"){
 				inshade = false;
 				GetComponent<MeshRenderer> ().enabled = false;
 			}else{
