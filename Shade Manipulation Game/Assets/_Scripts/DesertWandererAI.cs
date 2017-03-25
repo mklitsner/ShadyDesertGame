@@ -8,6 +8,7 @@ public class DesertWandererAI : MonoBehaviour {
 	[Range(0, 1)]public float tiredness;//0-1
 
 	public GameObject footprint;
+	public GameObject ghost;
 	int footprintSide=1;
 
 	const string resting = "resting";
@@ -51,7 +52,7 @@ public class DesertWandererAI : MonoBehaviour {
 		initialwanderingtime = 5;
 		wanderingtime = initialwanderingtime;
 		//StartCoroutine (FootPrintTiming (1));
-		maxDistance = 5;
+		maxDistance = 2;
 
 		speed = 2;
 	}
@@ -64,9 +65,13 @@ public class DesertWandererAI : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-	
+
 		if (tiredness > 0.5) {
-			currentspeed = speed / 2;
+			if (tiredness < 0.9) {
+				currentspeed = speed / (tiredness * 2);
+			} else {
+				currentspeed = 0;
+			}
 		} else {
 			currentspeed = speed;
 		}
@@ -83,7 +88,7 @@ public class DesertWandererAI : MonoBehaviour {
 
 		//WHAT HAPPENS IF NOT IN THE SHADE
 		if (!inshade) {
-			if (heat > 0.1f) {
+			if (heat > 0.2f) {
 				SearchForShade ();
 			}
 			if (state == sawSomething) {
@@ -102,7 +107,8 @@ public class DesertWandererAI : MonoBehaviour {
 		} 
 
 		//WHAT HAPPENS IF IN THE SHADE
-		else {
+		else if (inshade) {
+			
 			if (state == wandering) {
 				if (!obstacle) {
 					MoveRandomly (currentspeed);
@@ -121,10 +127,12 @@ public class DesertWandererAI : MonoBehaviour {
 
 		}
 
+		if (heat >= 1 && tiredness >= 1) {
+			SetState (dead);
+		}
 
-
-		SetHeat (0.0005f,0.001f);
-		SetTiredness (0.0005f, 0.02f);
+		SetHeat (0.005f,0.01f);
+		SetTiredness (0.001f, 0.02f);
 		StateIndicator ();
 
 	}
@@ -143,6 +151,9 @@ public class DesertWandererAI : MonoBehaviour {
 
 		case dead:
 			//dies and becomes cactus man
+			Vector3 ghostPos = new Vector3 (transform.localPosition.x, transform.localPosition.y+1f,transform.localPosition.z);
+			GameObject ghostclone = (GameObject)Instantiate(ghost,ghostPos,Quaternion.identity);
+			Destroy(gameObject);
 			break;
 
 		case wandering:
@@ -257,7 +268,7 @@ public class DesertWandererAI : MonoBehaviour {
 
 		if (Physics.SphereCast (ray, 0.1f, out hit)) 
 		{
-			if (hit.transform.gameObject.name == "sunTarget") {
+			if (hit.transform.gameObject.name == "sunTarget"||hit.transform.gameObject.tag == "shadowman") {
 				inshade = false;
 			} else {
 				inshade = true;
@@ -291,6 +302,9 @@ public class DesertWandererAI : MonoBehaviour {
 
 	void SetHeat(float _increaseheat,float _decreaseheat){
 		if(inshade){
+			if (heat > 0.5f) {
+				heat = 0.5f;
+			}
 			if(heat<=0){
 				heat = 0;
 			}else{

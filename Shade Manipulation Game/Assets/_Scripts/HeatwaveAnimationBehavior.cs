@@ -25,14 +25,13 @@ public class HeatwaveAnimationBehavior : MonoBehaviour {
 	void Update () {
 		heat = transform.parent.transform.parent.GetComponent<DesertWandererAI> ().heat;
 
-		float alpha = transform.GetComponent<SpriteRenderer> ().color.a;
 
-		if (heat < 0.2) {
+		if (heat < 0.5) {
 			transform.localScale = Vector3.Lerp (MinScale, MaxScale, heat);
-			anim.speed = 0.5f;
+			anim.speed = 0.2f;
 		}else{
 			//animate it moving faster
-			anim.speed = heat/0.2f*0.5f;
+			anim.speed = (heat/0.5f)*(heat/0.5f)*(heat/0.5f)*0.2f;
 			}
 			
 		

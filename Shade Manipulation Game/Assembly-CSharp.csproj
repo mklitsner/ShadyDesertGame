@@ -53,8 +53,11 @@
      <Compile Include="Assets\Retro Pixel Pro\Scripts\RetroPixelPro.cs" />
      <Compile Include="Assets\_Scripts\DesertWandererAI.cs" />
      <Compile Include="Assets\_Scripts\FootprintScript.cs" />
+     <Compile Include="Assets\_Scripts\GhostBehavior.cs" />
      <Compile Include="Assets\_Scripts\HeatwaveAnimationBehavior.cs" />
      <Compile Include="Assets\_Scripts\LookAroundHeadAI.cs" />
+     <Compile Include="Assets\_Scripts\MakeDesert.cs" />
+     <Compile Include="Assets\_Scripts\MakeMaze.cs" />
      <Compile Include="Assets\_Scripts\PlayerControls.cs" />
      <Compile Include="Assets\_Scripts\RandomColor.cs" />
      <Compile Include="Assets\_Scripts\ShadeSearcher.cs" />
@@ -62,6 +65,9 @@
      <Compile Include="Assets\_Scripts\ShadowManShadeSensor.cs" />
      <Compile Include="Assets\_Scripts\StatusScript.cs" />
      <Compile Include="Assets\_Scripts\heatWaveObjectBehavior.cs" />
+     <Compile Include="Assets\_Scripts\textScripts\hotText.cs" />
+     <Compile Include="Assets\_Scripts\textScripts\littleoneText.cs" />
+     <Compile Include="Assets\_Scripts\textScripts\shadedText.cs" />
      <None Include="Assets\Retro Pixel Pro\Resources\Shaders\RetroPixelPro.shader" />
      <None Include="Assets\Retro Pixel Pro\Readme.txt" />
  <Reference Include="UnityEngine.UI">

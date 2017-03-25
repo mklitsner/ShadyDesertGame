@@ -85,7 +85,11 @@ public class ShadowManAI : MonoBehaviour {
 					//if footprint is found, set current direction to the footprint
 					//if wanderer is in range, set current direction to wanderer
 					//else, if no foot print or wanderer is found for x seconds, goes from tracking to searching
-					float wandererDistance =Vector3.Distance(wanderer.transform.position, transform.position);
+	
+	float wandererDistance = Vector3.Distance (wanderer.transform.position, transform.position);
+	
+		
+		
 		if (state != dormant) {
 
 			if (inshade) {
@@ -248,7 +252,7 @@ public class ShadowManAI : MonoBehaviour {
 
 
 	void SetState(string _state){
-		print (_state + " shadowman");
+		//print (_state + " shadowman");
 		switch (_state) {
 		case circumvent:
 			StateIndicator (new Color(0.5f,0,1));
